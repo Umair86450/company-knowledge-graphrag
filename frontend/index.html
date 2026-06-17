@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Company Knowledge Assistant</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="chat">
+    <header class="chat-header">
+      <h1>Company Knowledge Assistant</h1>
+      <input id="username" type="text" placeholder="Enter your name to start chatting" maxlength="50" autocomplete="off" />
+    </header>
+
+    <main id="messages" class="messages"></main>
+
+    <form id="composer" class="composer">
+      <input id="message" type="text" placeholder="Type a message..." maxlength="2000" autocomplete="off" disabled />
+      <button id="send" type="submit" disabled>Send</button>
+    </form>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
