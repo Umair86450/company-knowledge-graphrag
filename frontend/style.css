@@ -100,6 +100,45 @@ body {
   font-size: 0.9em;
 }
 
+.debug {
+  align-self: flex-start;
+  max-width: 80%;
+  margin: -4px 0 4px;
+  font-size: 0.78rem;
+  color: #6b7280;
+  background: #fafafa;
+  border: 1px solid #ececec;
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+.debug summary {
+  cursor: pointer;
+  color: #9ca3af;
+}
+
+.debug-meta {
+  margin-top: 6px;
+}
+
+.debug pre {
+  margin: 4px 0 0;
+  padding: 8px;
+  background: #f1f1f1;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.debug-note {
+  margin-top: 6px;
+  font-style: italic;
+  color: #9ca3af;
+}
+
 .bubble.user {
   align-self: flex-end;
   background: #2563eb;

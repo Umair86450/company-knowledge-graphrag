@@ -10,6 +10,7 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     session_id: int
     reply: str
+    trace: dict | None = None
 
 
 class Message(BaseModel):

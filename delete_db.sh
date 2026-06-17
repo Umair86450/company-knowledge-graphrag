@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# Database se data delete karne ke liye.
-#   ./delete_db.sh session <id>   -> ek session + uske messages delete
-#   ./delete_db.sh user <id>      -> ek user + uski saari sessions + messages delete
-#   ./delete_db.sh all            -> saara data delete (users, sessions, messages)
+# Delete data from the database.
+#   ./delete_db.sh session <id>   -> delete one session + its messages
+#   ./delete_db.sh user <id>      -> delete one user + all their sessions + messages
+#   ./delete_db.sh all            -> delete all data (users, sessions, messages)
 set -euo pipefail
 
 DB="$(dirname "$0")/database/chat.db"
 
 if [ ! -f "$DB" ]; then
-  echo "Database nahi mili: $DB"
+  echo "Database not found: $DB"
   exit 1
 fi
 
@@ -18,18 +18,18 @@ case "${1:-}" in
   session)
     [ -n "${2:-}" ] || { echo "Usage: ./delete_db.sh session <id>"; exit 1; }
     run "DELETE FROM sessions WHERE id = $2;"
-    echo "Session $2 (aur uske messages) delete ho gaye."
+    echo "Session $2 (and its messages) deleted."
     ;;
   user)
     [ -n "${2:-}" ] || { echo "Usage: ./delete_db.sh user <id>"; exit 1; }
     run "DELETE FROM users WHERE id = $2;"
-    echo "User $2 (aur uski sessions + messages) delete ho gaye."
+    echo "User $2 (and their sessions + messages) deleted."
     ;;
   all)
-    read -r -p "Sab data delete kar dein? (y/N) " ok
-    [ "$ok" = "y" ] || { echo "Cancel."; exit 0; }
+    read -r -p "Delete all data? (y/N) " ok
+    [ "$ok" = "y" ] || { echo "Cancelled."; exit 0; }
     run "DELETE FROM messages; DELETE FROM sessions; DELETE FROM users; DELETE FROM sqlite_sequence;"
-    echo "Saara data delete ho gaya. Ab ids 1 se shuru hongi."
+    echo "All data deleted. IDs will start from 1 again."
     ;;
   *)
     echo "Usage:"

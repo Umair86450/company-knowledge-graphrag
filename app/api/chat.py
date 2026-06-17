@@ -2,9 +2,10 @@ import logging
 
 from fastapi import APIRouter, HTTPException
 
+from app.agent.agent import run_agent
 from app.models.db import add_message, create_session, get_messages, get_or_create_user
 from app.models.schemas import ChatRequest, ChatResponse, Message
-from app.services.claude_service import ClaudeError, chat
+from app.services.claude_service import ClaudeError
 
 logger = logging.getLogger(__name__)
 
@@ -19,13 +20,13 @@ def post_chat(request: ChatRequest) -> ChatResponse:
     add_message(session_id, "user", request.message)
 
     try:
-        reply = chat(session_id, request.message)
+        reply, trace = run_agent(request.message, session_id)
     except ClaudeError as exc:
         logger.error("Claude chat failed for session %s: %s", session_id, exc)
         raise HTTPException(status_code=502, detail="Claude is unavailable, please try again.")
 
     add_message(session_id, "assistant", reply)
-    return ChatResponse(session_id=session_id, reply=reply)
+    return ChatResponse(session_id=session_id, reply=reply, trace=trace)
 
 
 @router.get("/history/{session_id}", response_model=list[Message])

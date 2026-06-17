@@ -17,7 +17,7 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-CLAUDE_MODEL = os.getenv("CLAUDE_MODEL", "claude-opus-4-8")
+CLAUDE_MODEL = os.getenv("CLAUDE_MODEL", "claude-sonnet-4-6")
 CLAUDE_TIMEOUT = int(os.getenv("CLAUDE_TIMEOUT", "120"))
 
 SYSTEM_PROMPT = Path("prompts/chatbot_prompt.txt").read_text(encoding="utf-8")
@@ -31,8 +31,10 @@ def ask_claude(
     prompt: str,
     claude_session_id: str | None = None,
     system_prompt: str | None = None,
+    model: str | None = None,
 ) -> tuple[str, str]:
     """Send a prompt to the Claude Code CLI and return (response_text, session_id)."""
+    model = model or CLAUDE_MODEL
     command = [
         "claude",
         "-p",
@@ -44,14 +46,14 @@ def ask_claude(
         "--tools",
         "",
         "--model",
-        CLAUDE_MODEL,
+        model,
     ]
     if claude_session_id:
         command += ["--resume", claude_session_id]
     if system_prompt:
         command += ["--system-prompt", system_prompt]
 
-    logger.info("Calling Claude CLI (model=%s, session=%s)", CLAUDE_MODEL, claude_session_id or "new")
+    logger.info("Calling Claude CLI (model=%s, session=%s)", model, claude_session_id or "new")
 
     try:
         result = subprocess.run(

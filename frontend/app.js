@@ -64,6 +64,42 @@ function addBubble(text, kind) {
   return bubble;
 }
 
+function addDebugPanel(trace) {
+  const details = document.createElement("details");
+  details.className = "debug";
+
+  const summary = document.createElement("summary");
+  summary.textContent = "🔍 Debug";
+  details.appendChild(summary);
+
+  const tool = trace.tool && trace.tool !== "none" ? trace.tool : "no tool used";
+  const result = trace.tool_result || "—";
+
+  const meta = document.createElement("div");
+  meta.className = "debug-meta";
+  meta.innerHTML = `<div><strong>Tool:</strong> </div><div><strong>Input:</strong> </div>`;
+  meta.children[0].append(tool);
+  meta.children[1].append(trace.tool_input || "—");
+  details.appendChild(meta);
+
+  const label = document.createElement("div");
+  label.className = "debug-meta";
+  label.innerHTML = "<strong>Retrieved / Tool result:</strong>";
+  details.appendChild(label);
+
+  const pre = document.createElement("pre");
+  pre.textContent = result;
+  details.appendChild(pre);
+
+  const note = document.createElement("div");
+  note.className = "debug-note";
+  note.textContent = "These are the agent's internal steps for this answer.";
+  details.appendChild(note);
+
+  messages.appendChild(details);
+  messages.scrollTop = messages.scrollHeight;
+}
+
 async function sendMessage(username, message) {
   const response = await fetch("/chat", {
     method: "POST",
@@ -96,6 +132,9 @@ composer.addEventListener("submit", async (event) => {
     sessionId = data.session_id;
     loading.remove();
     addBubble(data.reply, "assistant");
+    if (data.trace) {
+      addDebugPanel(data.trace);
+    }
   } catch (error) {
     loading.remove();
     addBubble("Something went wrong. Please try again.", "error");

@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Database dekhne ke liye: ./show_db.sh           -> users, sessions, message counts
-#                          ./show_db.sh <session> -> us session ki poori chat history
+# View the database: ./show_db.sh           -> users, sessions, message counts
+#                    ./show_db.sh <session> -> full chat history for that session
 set -euo pipefail
 
 DB="$(dirname "$0")/database/chat.db"
 
 if [ ! -f "$DB" ]; then
-  echo "Database nahi mili: $DB"
+  echo "Database not found: $DB"
   exit 1
 fi
 
