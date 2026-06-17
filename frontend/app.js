@@ -5,6 +5,7 @@ const messageInput = document.getElementById("message");
 const sendButton = document.getElementById("send");
 const composer = document.getElementById("composer");
 const messages = document.getElementById("messages");
+const newChatButton = document.getElementById("new-chat");
 
 function syncEnabled() {
   const ready = usernameInput.value.trim().length > 0;
@@ -12,10 +13,52 @@ function syncEnabled() {
   sendButton.disabled = !ready;
 }
 
+function inline(text) {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/`(.+?)`/g, "<code>$1</code>");
+}
+
+function renderMarkdown(text) {
+  const escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  let html = "";
+  let listTag = null;
+
+  const closeList = () => {
+    if (listTag) {
+      html += `</${listTag}>`;
+      listTag = null;
+    }
+  };
+
+  for (const line of escaped.split("\n")) {
+    const bullet = line.match(/^\s*[-*]\s+(.*)$/);
+    const numbered = line.match(/^\s*\d+\.\s+(.*)$/);
+    if (bullet) {
+      if (listTag !== "ul") { closeList(); html += "<ul>"; listTag = "ul"; }
+      html += `<li>${inline(bullet[1])}</li>`;
+    } else if (numbered) {
+      if (listTag !== "ol") { closeList(); html += "<ol>"; listTag = "ol"; }
+      html += `<li>${inline(numbered[1])}</li>`;
+    } else if (line.trim() === "") {
+      closeList();
+    } else {
+      closeList();
+      html += `<p>${inline(line)}</p>`;
+    }
+  }
+  closeList();
+  return html;
+}
+
 function addBubble(text, kind) {
   const bubble = document.createElement("div");
   bubble.className = `bubble ${kind}`;
-  bubble.textContent = text;
+  if (kind === "assistant") {
+    bubble.innerHTML = renderMarkdown(text);
+  } else {
+    bubble.textContent = text;
+  }
   messages.appendChild(bubble);
   messages.scrollTop = messages.scrollHeight;
   return bubble;
@@ -60,6 +103,12 @@ composer.addEventListener("submit", async (event) => {
     sendButton.disabled = false;
     messageInput.focus();
   }
+});
+
+newChatButton.addEventListener("click", () => {
+  sessionId = null;
+  messages.innerHTML = "";
+  messageInput.focus();
 });
 
 usernameInput.addEventListener("input", syncEnabled);

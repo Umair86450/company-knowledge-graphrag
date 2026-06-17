@@ -28,8 +28,8 @@ case "${1:-}" in
   all)
     read -r -p "Sab data delete kar dein? (y/N) " ok
     [ "$ok" = "y" ] || { echo "Cancel."; exit 0; }
-    run "DELETE FROM messages; DELETE FROM sessions; DELETE FROM users;"
-    echo "Saara data delete ho gaya."
+    run "DELETE FROM messages; DELETE FROM sessions; DELETE FROM users; DELETE FROM sqlite_sequence;"
+    echo "Saara data delete ho gaya. Ab ids 1 se shuru hongi."
     ;;
   *)
     echo "Usage:"

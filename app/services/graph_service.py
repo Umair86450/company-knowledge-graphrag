@@ -50,6 +50,35 @@ def close_driver() -> None:
         logger.info("Neo4j driver closed")
 
 
+def find_entities(question: str) -> list[dict]:
+    text = question.lower()
+    nodes = run_query("MATCH (n) RETURN n.id AS id, labels(n)[0] AS label")
+    return [n for n in nodes if n["id"] and n["id"].lower() in text]
+
+
+def get_neighborhood(entity_ids: list[str]) -> list[dict]:
+    return run_query(
+        "MATCH (a)-[r]-(b) WHERE a.id IN $ids "
+        "RETURN a.id AS from, type(r) AS rel, b.id AS to, labels(b)[0] AS to_label",
+        {"ids": entity_ids},
+    )
+
+
+def retrieve_context(question: str) -> str:
+    entities = find_entities(question)
+    if not entities:
+        return ""
+
+    relationships = get_neighborhood([e["id"] for e in entities])
+    lines = []
+    for r in relationships:
+        line = f"- {r['from']} {r['rel']} {r['to']}"
+        if line not in lines:
+            lines.append(line)
+
+    return "Facts from the company knowledge graph:\n" + "\n".join(lines)
+
+
 def load_knowledge_base(json_path: str) -> None:
     with open(json_path, encoding="utf-8") as f:
         data = json.load(f)

@@ -11,6 +11,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from app.models.db import get_session, update_claude_session
+from app.services.graph_service import retrieve_context
 
 load_dotenv()
 
@@ -80,7 +81,14 @@ def chat(db_session_id: int, user_message: str) -> str:
     session = get_session(db_session_id)
     claude_session_id = session["claude_session_id"] if session else None
 
-    reply, new_sid = ask_claude(user_message, claude_session_id, SYSTEM_PROMPT)
+    context = retrieve_context(user_message)
+    prompt = (
+        f"{context}\n\nUse the above facts if relevant. Question: {user_message}"
+        if context
+        else user_message
+    )
+
+    reply, new_sid = ask_claude(prompt, claude_session_id, SYSTEM_PROMPT)
 
     if claude_session_id is None:
         update_claude_session(db_session_id, new_sid)
